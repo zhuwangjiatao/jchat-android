@@ -18,6 +18,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -486,6 +487,20 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            }
+        });
+        lvChat.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        ekBar.reset();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        view.performClick();
+                        break;
+                }
+                return false;
             }
         });
     }
