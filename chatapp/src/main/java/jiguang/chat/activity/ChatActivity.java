@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.sj.emoji.EmojiBean;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
@@ -60,6 +62,7 @@ import jiguang.chat.adapter.ChattingListAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
+import jiguang.chat.listener.RecordVoiceListener;
 import jiguang.chat.location.activity.MapPickerActivity;
 import jiguang.chat.model.Constants;
 import jiguang.chat.pickerimage.PickImageActivity;
@@ -349,17 +352,30 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 }
             }
         });
-        //切换语音输入
-        ekBar.getVoiceOrText().setOnClickListener(new View.OnClickListener() {
+        ekBar.getBtnVoice().setRecordVoiceListener(new RecordVoiceListener() {
+
             @Override
-            public void onClick(View v) {
-                int i = v.getId();
-                if (i == R.id.btn_voice_or_text) {
-                    ekBar.setVideoText();
-                    ekBar.getBtnVoice().initConv(mConv, mChatAdapter, mChatView);
+            public void onFinishRecord(File voiceFile, int duration) {
+                try {
+                    VoiceContent content = new VoiceContent(voiceFile, duration);
+                    Message msg = mConv.createSendMessage(content);
+                    mChatAdapter.addMsgFromReceiptToList(msg);
+                    if (mConv.getType() == ConversationType.single) {
+                        MessageSendingOptions options = new MessageSendingOptions();
+                        options.setNeedReadReceipt(true);
+                        JMessageClient.sendMessage(msg, options);
+                    } else {
+                        MessageSendingOptions options = new MessageSendingOptions();
+                        options.setNeedReadReceipt(true);
+                        JMessageClient.sendMessage(msg, options);
+                    }
+                    mChatView.setToBottom();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         });
+
 
     }
 

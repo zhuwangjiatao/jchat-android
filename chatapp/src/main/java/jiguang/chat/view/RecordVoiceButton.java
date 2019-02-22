@@ -8,11 +8,11 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v7.widget.AppCompatButton;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
@@ -29,20 +28,15 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.VoiceContent;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.Message;
-import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.api.options.MessageSendingOptions;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChattingListAdapter;
+import jiguang.chat.listener.RecordVoiceListener;
 import jiguang.chat.utils.FileHelper;
 import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.IdHelper;
 
-public class RecordVoiceButton extends Button {
+public class RecordVoiceButton extends AppCompatButton {
 
     private File myRecAudioFile;
 
@@ -80,6 +74,7 @@ public class RecordVoiceButton extends Button {
     private Chronometer mVoiceTime;
     private TextView mTimeDown;
     private LinearLayout mMicShow;
+    private RecordVoiceListener mRecordVoiceListener;
 
     public RecordVoiceButton(Context context) {
         super(context);
@@ -288,31 +283,8 @@ public class RecordVoiceButton extends Button {
                     } else if (duration > 60) {
                         duration = 60;
                     }
-                    try {
-                        VoiceContent content = new VoiceContent(myRecAudioFile, duration);
-                        Message msg = mConv.createSendMessage(content);
-                        mMsgListAdapter.addMsgFromReceiptToList(msg);
-                        if (mConv.getType() == ConversationType.single) {
-                            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
-                            MessageSendingOptions options = new MessageSendingOptions();
-                            options.setNeedReadReceipt(true);
-                            JMessageClient.sendMessage(msg, options);
-//                            if (userInfo.isFriend()) {
-//                                JMessageClient.sendMessage(msg);
-//                            } else {
-//                                CustomContent customContent = new CustomContent();
-//                                customContent.setBooleanValue("notFriend", true);
-//                                Message customMsg = mConv.createSendMessage(customContent);
-//                                mMsgListAdapter.addMsgToList(customMsg);
-//                            }
-                        } else {
-                            MessageSendingOptions options = new MessageSendingOptions();
-                            options.setNeedReadReceipt(true);
-                            JMessageClient.sendMessage(msg, options);
-                        }
-                        mChatView.setToBottom();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                    if (null != mRecordVoiceListener) {
+                        mRecordVoiceListener.onFinishRecord(myRecAudioFile, duration);
                     }
                 } else {
                     Toast.makeText(mContext, mContext.getString(R.string.jmui_record_voice_permission_request), Toast.LENGTH_SHORT).show();
@@ -571,4 +543,13 @@ public class RecordVoiceButton extends Button {
             }
         }
     }
+
+    /**
+     *  设置录音回调
+     * @param listener 录音回调接口
+     */
+    public void setRecordVoiceListener(RecordVoiceListener listener) {
+        mRecordVoiceListener = listener;
+    }
+
 }

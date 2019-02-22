@@ -30,8 +30,10 @@ import jiguang.chat.utils.keyboard.widget.EmoticonsToolBarView;
 import jiguang.chat.utils.keyboard.widget.FuncLayout;
 import jiguang.chat.view.RecordVoiceButton;
 
-public class XhsEmoticonsKeyBoard extends AutoHeightLayout implements View.OnClickListener, EmoticonsFuncView.OnEmoticonsPageViewListener,
-        EmoticonsToolBarView.OnToolBarItemClickListener, EmoticonsEditText.OnBackKeyClickListener, FuncLayout.OnFuncChangeListener {
+public class XhsEmoticonsKeyBoard extends AutoHeightLayout implements View.OnClickListener,
+        EmoticonsFuncView.OnEmoticonsPageViewListener,
+        EmoticonsToolBarView.OnToolBarItemClickListener, EmoticonsEditText
+                .OnBackKeyClickListener, FuncLayout.OnFuncChangeListener {
 
     public static final int FUNC_TYPE_EMOTION = -1;
     public static final int FUNC_TYPE_APPPS = -2;
@@ -79,7 +81,7 @@ public class XhsEmoticonsKeyBoard extends AutoHeightLayout implements View.OnCli
         mBtnSend = ((Button) findViewById(R.id.btn_send));
         mLyKvml = ((FuncLayout) findViewById(R.id.ly_kvml));
 
-//        mBtnVoiceOrText.setOnClickListener(this);
+        mBtnVoiceOrText.setOnClickListener(this);
         mBtnFace.setOnClickListener(this);
         mBtnMultimedia.setOnClickListener(this);
         mEtChat.setOnBackKeyClickListener(this);
@@ -241,24 +243,23 @@ public class XhsEmoticonsKeyBoard extends AutoHeightLayout implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        int i = v.getId();
-        /*if (i == R.id.btn_voice_or_text) {
-            if (mRlInput.isShown()) {
-                mBtnVoiceOrText.setImageResource(R.drawable.btn_voice_or_text_keyboard);
-                showVoice();
-            } else {
-                showText();
-                mBtnVoiceOrText.setImageResource(R.drawable.btn_voice_or_text);
-                EmoticonsKeyboardUtils.openSoftKeyboard(mEtChat);
-            }
-        } else*/ if (i == R.id.btn_face) {
-            toggleFuncView(FUNC_TYPE_EMOTION);
-        } else if (i == R.id.btn_multimedia) {
-            toggleFuncView(FUNC_TYPE_APPPS);
+        switch (v.getId()) {
+            case R.id.btn_voice_or_text:
+                setVideoText();
+                break;
+            case R.id.btn_face:
+                toggleFuncView(FUNC_TYPE_EMOTION);
+                break;
+            case R.id.btn_multimedia:
+                toggleFuncView(FUNC_TYPE_APPPS);
+                break;
+            default:
+                break;
         }
+
     }
 
-    public  void setVideoText() {
+    public void setVideoText() {
         if (mRlInput.isShown()) {
             mBtnVoiceOrText.setImageResource(R.drawable.btn_voice_or_text_keyboard);
             showVoice();
@@ -326,14 +327,16 @@ public class XhsEmoticonsKeyBoard extends AutoHeightLayout implements View.OnCli
         }
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_BACK:
-                if (EmoticonsKeyboardUtils.isFullScreen((Activity) getContext()) && mLyKvml.isShown()) {
+                if (EmoticonsKeyboardUtils.isFullScreen((Activity) getContext()) && mLyKvml
+                        .isShown()) {
                     reset();
                     return true;
                 }
             default:
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     boolean isFocused;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES
+                            .LOLLIPOP) {
                         isFocused = mEtChat.getShowSoftInputOnFocus();
                     } else {
                         isFocused = mEtChat.isFocused();
@@ -369,4 +372,5 @@ public class XhsEmoticonsKeyBoard extends AutoHeightLayout implements View.OnCli
     public EmoticonsToolBarView getEmoticonsToolBarView() {
         return mEmoticonsToolBarView;
     }
+
 }
