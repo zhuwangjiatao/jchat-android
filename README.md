@@ -1,3 +1,4 @@
+从极光jchat-android Commits on Oct 26, 2018这个提交拉的分支，解决存在的一些bug和代码隔离
 # JChat Android
 
 ### 简介
